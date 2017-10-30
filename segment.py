@@ -1,0 +1,41 @@
+#!/usr/bin/python
+from pydub import AudioSegment
+import os
+def mkdir(directory):
+	try:
+		os.makedirs(directory)
+	except:
+		pass
+		
+audio_filename = "audio/ice_age_a_mammoth_christmas.wav"
+filename = 'label/ice_age_a_mammoth_christmas.csv'		
+pre_directory = "audio_segment"
+directory = pre_directory + "/" + audio_filename.split("/")[-1].split(".")[0]
+mkdir(directory)
+
+labels = ["n","j","s","f","a","c","d"]
+newAudio = AudioSegment.from_wav(audio_filename)
+label_cnt = dict()
+default = 0
+with open(filename) as f:
+	f.readline()
+	for l in f:
+		line = l.strip().split(",")
+		t1 = int(line[0])
+		t2 = t1 + int(line[1])
+		label = line[-1].strip().lower()
+		if label not in label:
+			print "error"
+		else:
+			cnt = label_cnt.get(label, default)
+			new_name = directory + "/" + label + "_" + str(cnt) + ".wav"
+			label_cnt[label] = cnt + 1
+			newAudio = newAudio[t1:t2]
+			newAudio.export(new_name, format="wav")
+
+
+
+
+
+
+			
