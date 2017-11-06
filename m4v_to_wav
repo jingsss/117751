@@ -1,3 +1,5 @@
 #!/bin/bash
 
 ffmpeg -i video/ICE_AGE_A_MAMMOTH_CHRISTMAS.m4v -ab 160k -ac 2 -ar 44100 -vn audio/ice_age_a_mammoth_christmas.wav
+ffmpeg -i video/CARSTOONS.m4v -ab 160k -ac 2 -ar 44100 -vn audio/CARSTOONS.wav
+ffmpeg -i video/ICE_AGE.m4v -ab 160k -ac 2 -ar 44100 -vn audio/ICE_AGE.wav
