@@ -12,14 +12,14 @@ $emo_trans{'A'} = 5;
 $emo_trans{'C'} = 6;
 $emo_trans{'D'} = 7;
 
-my $filename = 'test';
+my $filename = 'train_english_7';
 my $loc = "../combine_data/$filename";
 my @lines = <$loc/*>;
 my $count = 0;
-my $header = 'openSMILE-2.3.0';
+my $header = 'openSMILE-2.1.0';
 
 
-if (-e "Features/$filename.arff") {system("rm Features/$filename.arff")}
+if (-e "../Features/$filename.arff") {system("rm ../Features/$filename.arff")}
 foreach my $line (@lines) {
 	if ($line =~ 'N' || $line =~ 'J' || $line =~ 'S'|| $line =~ 'F'|| $line =~ 'A'|| $line =~ 'C'|| $line =~ 'D'){
 #		 print "$line\n";
@@ -34,7 +34,7 @@ foreach my $line (@lines) {
 	}
 }
 
-my @names = ('test'); 
+my @names = ('train_english_7'); 
 foreach my $name (@names) {
 	open(INFO, "../Features/$name.arff");
 	my @lines = <INFO>;
