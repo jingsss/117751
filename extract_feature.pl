@@ -12,11 +12,14 @@ $emo_trans{'A'} = 5;
 $emo_trans{'C'} = 6;
 $emo_trans{'D'} = 7;
 
-my $loc = '../combine_data/train';
+my $filename = 'test';
+my $loc = "../combine_data/$filename";
 my @lines = <$loc/*>;
 my $count = 0;
 my $header = 'openSMILE-2.3.0';
-if (-e 'Features/train.arff') {system("rm Features/train.arff")}
+
+
+if (-e "Features/$filename.arff") {system("rm Features/$filename.arff")}
 foreach my $line (@lines) {
 	if ($line =~ 'N' || $line =~ 'J' || $line =~ 'S'|| $line =~ 'F'|| $line =~ 'A'|| $line =~ 'C'|| $line =~ 'D'){
 #		 print "$line\n";
@@ -24,14 +27,14 @@ foreach my $line (@lines) {
 		s/(N|J|S|F|A|C|D)//;
 		my $emo = $emo_trans{$&};
 		
-		my $cmd = "SMILExtract -C config/emo_IS09.conf -I $line -O ../Features/train.arff -classes {1,2,3,4,5,6,7} -classlabel $emo";
+		my $cmd = "SMILExtract -C config/emo_IS09.conf -I $line -O ../Features/$filename.arff -classes {1,2,3,4,5,6,7} -classlabel $emo";
 		$count++;
 		print "$cmd\n";
 		system($cmd);
 	}
 }
 
-my @names = ('train'); 
+my @names = ('test'); 
 foreach my $name (@names) {
 	open(INFO, "../Features/$name.arff");
 	my @lines = <INFO>;
