@@ -7,8 +7,8 @@ def mkdir(directory):
 	except:
 		pass
 		
-audio_filename = "audio/ice_age_a_mammoth_christmas.wav"
-filename = 'label/ice_age_a_mammoth_christmas.csv'		
+audio_filename = "audio/SHREK_2.wav"
+filename = 'label/SHREK_2.csv'		
 pre_directory = "audio_segment"
 directory = pre_directory + "/" + audio_filename.split("/")[-1].split(".")[0].lower()
 mkdir(directory)
@@ -25,8 +25,9 @@ with open(filename) as f:
 		t1 = int(line[0])
 		t2 = t1 + int(line[1])
 		label = line[-1].strip().upper()
-		if label not in label:
-			print "error"
+		if label not in labels:
+#			print label
+			continue
 		else:
 			cnt = label_cnt.get(label, default)
 			new_name = directory + "/" + label + "_" + str(cnt) + ".wav"
