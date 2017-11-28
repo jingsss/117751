@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 from pydub import AudioSegment
-import os
+import os,shutil
 def segment(label_filename, audio_filename, label_cnt, labels, directory):
 	newAudio = AudioSegment.from_wav(audio_filename)
 	newAudio = newAudio.set_channels(1)
@@ -26,13 +26,15 @@ def mkdir(directory):
 	try:
 		os.makedirs(directory)
 	except:
-		pass
+		shutil.rmtree(directory)
+		os.makedirs(directory)
+
 		
 #audio_filename = ["audio/SHREK_2.wav", "audio/cartoons.wav","audio/ice_age.wav"]
 #filename = ['label/SHREK_2.csv','label/cartoons.csv','label/ice_age.csv']	
 #directory = "combine_data/train"
-audio_filename = ["audio/ice_age_a_mammoth_christmas.wav"]
-filename = ['label/ice_age_a_mammoth_christmas.csv']	
+audio_filename = ["audio/ice_age.wav"]
+filename = ['label/ice_age.csv']	
 directory = "combine_data/test"
 mkdir(directory)
 
