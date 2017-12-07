@@ -6,7 +6,7 @@ from sklearn.ensemble import RandomForestClassifier,AdaBoostClassifier
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.multiclass import OneVsRestClassifier
 from sklearn.metrics import confusion_matrix
-from imblearn.metrics import classification_report_imbalanced,geometric_mean_score
+#from imblearn.metrics import classification_report_imbalanced,geometric_mean_score
 
 from sklearn import preprocessing
 
@@ -25,7 +25,7 @@ def model(clf, train_X, train_Y, test_X, test_Y, classes, name):
 	classes_acc = np.diag(conf_m) * 1.0 / row_sum
 	print "_________________ Using Model %s __________________\n"%(name)
 	print conf_m
-	print classification_report_imbalanced(test_Y, predict_test, labels = classes)
+	#print classification_report_imbalanced(test_Y, predict_test, labels = classes)
 	print "Average Accuracy : %.4f"%(np.mean(classes_acc))
 	print "Precision : %.4f"%(np.mean(test_Y == predict_test))
 	
