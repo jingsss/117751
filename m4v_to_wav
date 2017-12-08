@@ -1,5 +1,44 @@
 #!/bin/bash
 
-ffmpeg -i video/ICE_AGE_A_MAMMOTH_CHRISTMAS.m4v -ab 160k -ac 2 -ar 44100 -vn audio/ice_age_a_mammoth_christmas.wav
-ffmpeg -i video/CARSTOONS.m4v -ab 160k -ac 2 -ar 44100 -vn audio/CARSTOONS.wav
-ffmpeg -i video/ICE_AGE.m4v -ab 160k -ac 2 -ar 44100 -vn audio/ICE_AGE.wav
+ffmpeg -i video/ICE_AGE_A_MAMMOTH_CHRISTMAS.m4v -ab 160k -ac 2 -ar 44100 -vn audio/ice_age_a_mammoth_christmas_eng.wav
+ffmpeg -i video/ICE_AGE_A_MAMMOTH_CHRISTMAS.m4v -ab 160k -ac 2 -ar 44100 -map 0:2 -vn audio/ice_age_a_mammoth_christmas_spa.wav
+ffmpeg -i video/ICE_AGE_A_MAMMOTH_CHRISTMAS.m4v -ab 160k -ac 2 -ar 44100 -map 0:3 -vn audio/ice_age_a_mammoth_christmas_rus.wav
+ffmpeg -i video/ICE_AGE_A_MAMMOTH_CHRISTMAS.m4v -ab 160k -ac 2 -ar 44100 -map 0:4 -vn audio/ice_age_a_mammoth_christmas_est.wav
+ffmpeg -i video/ICE_AGE_A_MAMMOTH_CHRISTMAS.m4v -ab 160k -ac 2 -ar 44100 -map 0:5 -vn audio/ice_age_a_mammoth_christmas_lav.wav
+ffmpeg -i video/ICE_AGE_A_MAMMOTH_CHRISTMAS.m4v -ab 160k -ac 2 -ar 44100 -map 0:6 -vn audio/ice_age_a_mammoth_christmas_lit.wav
+ffmpeg -i video/ICE_AGE_A_MAMMOTH_CHRISTMAS.m4v -ab 160k -ac 2 -ar 44100 -map 0:7 -vn audio/ice_age_a_mammoth_christmas_tur.wav
+ffmpeg -i video/ICE_AGE_A_MAMMOTH_CHRISTMAS.m4v -ab 160k -ac 2 -ar 44100 -map 0:8 -vn audio/ice_age_a_mammoth_christmas_ukr.wav
+
+
+
+
+ffmpeg -i video/CARSTOONS.m4v -ab 160k -ac 2 -ar 44100 -vn audio/carstoons_eng.wav
+ffmpeg -i video/CARSTOONS.m4v -ab 160k -ac 2 -ar 44100 -vn -map 0:2 audio/carstoons_deu.wav
+ffmpeg -i video/CARSTOONS.m4v -ab 160k -ac 2 -ar 44100 -vn -map 0:3 audio/carstoons_tur.wav
+
+
+ffmpeg -i video/ICE_AGE.m4v -ab 160k -ac 2 -ar 44100 -vn audio/ice_age_eng.wav
+ffmpeg -i video/ICE_AGE.m4v -ab 160k -ac 2 -ar 44100 -map 0:2 -vn audio/ice_age_rus.wav
+ffmpeg -i video/ICE_AGE.m4v -ab 160k -ac 2 -ar 44100 -map 0:3 -vn audio/ice_age_slk.wav
+ffmpeg -i video/ICE_AGE.m4v -ab 160k -ac 2 -ar 44100 -map 0:4 -vn audio/ice_age_tur.wav
+
+
+
+ffmpeg -i video/SHREK_2.m4v -ab 160k -ac 2 -ar 44100 -vn audio/shrek_2_eng.wav
+ffmpeg -i video/SHREK_2.m4v -ab 160k -ac 2 -ar 44100 -vn -map 0:2 audio/shrek_2_deu.wav
+ffmpeg -i video/SHREK_2.m4v -ab 160k -ac 2 -ar 44100 -vn -map 0:4 audio/shrek_2_tur.wav
+
+ffmpeg -i video/CHICKEN_RUN_DISC_1.m4v -ab 160k -ac 2 -ar 44100 -vn audio/chicken_run_eng.wav
+ffmpeg -i video/CHICKEN_RUN_DISC_1.m4v -ab 160k -ac 2 -ar 44100 -map 0:2 -vn audio/chicken_run_deu.wav
+
+
+
+ffmpeg -i video/TEAM_AMERICA_GERMANY.m4v -ab 160k -ac 2 -ar 44100 -vn audio/team_america_eng.wav
+ffmpeg -i video/TEAM_AMERICA_GERMANY.m4v -ab 160k -ac 2 -ar 44100 -map 0:3 -vn audio/team_america_deu.wav
+ffmpeg -i video/TEAM_AMERICA_GERMANY.m4v -ab 160k -ac 2 -ar 44100 -map 0:5 -vn audio/team_america_tur.wav
+
+
+
+
+
+
