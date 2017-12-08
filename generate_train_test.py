@@ -2,6 +2,7 @@
 
 from pydub import AudioSegment
 import os,shutil
+import numpy as np
 from os import listdir
 from os.path import isfile, join
 
@@ -19,6 +20,7 @@ LABEL_FILE_FOLDER = "label/"
 #filename = ['label/ice_age.csv']	
 #directory = "combine_data/test"
 
+
 def segment(label_filename, audio_filename, label_cnt, labels, directory):
 	newAudio = AudioSegment.from_wav(audio_filename)
 	newAudio = newAudio.set_channels(1)
@@ -33,11 +35,12 @@ def segment(label_filename, audio_filename, label_cnt, labels, directory):
 			if label not in labels:
 				continue
 			else:
-				cnt = label_cnt.get(label, default)
-				new_name = directory + "/" + label + "_" + str(cnt) + ".wav"
-				label_cnt[label] = cnt + 1
-				tmp = newAudio[t1:t2]
-				tmp.export(new_name, format="wav")
+				if label != 'N' or np.random.uniform(0,1) < 0.15:
+					cnt = label_cnt.get(label, default)
+					new_name = directory + "/" + label + "_" + str(cnt) + ".wav"
+					label_cnt[label] = cnt + 1
+					tmp = newAudio[t1:t2]
+					tmp.export(new_name, format="wav")
 	
 def mkdir(directory):
 	try:
@@ -45,6 +48,25 @@ def mkdir(directory):
 	except:
 		shutil.rmtree(directory)
 		os.makedirs(directory)
+
+
+		
+audio_filename = ["audio/SHREK_2.wav", "audio/cartoons.wav","audio/ice_age_a_mammoth_christmas.wav", "audio/team_america.wav"]
+filename = ['label/SHREK_2.csv','label/cartoons.csv','label/ice_age_a_mammoth_christmas.csv','label/team_america.csv']	
+directory = "combine_data/train_resample"
+
+#audio_filename = ["audio/chicken_run.wav", "audio/ice_age.wav"]
+#filename = ['label/chicken_run.csv', 'label/ice_age.csv']	
+#directory = "combine_data/test_resample"
+mkdir(directory)
+
+labels = ["N","J","S","F","A","C","D"]
+label_cnt = dict()
+default = 0
+
+for i in range(len(audio_filename)):
+	segment(filename[i], audio_filename[i], label_cnt, labels, directory)
+	print label_cnt
 
 def speech_modification(filename, speed_rate, new_file_path):
 	 cmdstring = "sox %s %s tempo %f" % (filename, new_file_path, speed_rate)
@@ -80,7 +102,6 @@ def extract_original_segments(audio_files, label_files, label_cnt, labels):
 			speech_modification(dir_orig+original_file, faster_rate, dir_faster+original_file)
 			speech_modification(dir_orig+original_file, slower_rare, dir_slower+original_file)
 	
-
 
 if __name__ == '__main__':
 	#mkdir(directory)
