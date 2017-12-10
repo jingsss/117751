@@ -21,13 +21,29 @@ def read_from_arff(filename):
 		data_Y = np.asarray([int(i[-1]) for i in data])
 	return data_X, data_Y, meta
 
-def get_dataset(filename):
+def get_dataset(filename, same_movie = False, prev = True, thres = 1):
 	X = []
 	Y = []
+	idx = None
 	for i in filename:
 		temp_X, temp_Y, meta = read_from_arff(i)
-		X.append(temp_X)
-		Y.append(temp_Y)
+		if same_movie == False:
+			X.append(temp_X)
+			Y.append(temp_Y)
+		else:
+			if idx == None:
+				n = len(temp_Y)
+				idx = range(n)
+				random.seed(1)
+				random.shuffle(idx)
+			if prev == True:
+				temp_X = temp_X[idx[:int(thres * n)]]
+				temp_Y = temp_Y[idx[:int(thres * n)]]
+			else:
+				temp_X = temp_X[idx[int(thres * n):]]
+				temp_Y = temp_Y[idx[int(thres * n):]]
+			X.append(temp_X)
+			Y.append(temp_Y)
 	return np.vstack(X), np.hstack(Y)
 	
 def model(clf, train_X, train_Y, test_X, test_Y, classes, name):
@@ -36,7 +52,7 @@ def model(clf, train_X, train_Y, test_X, test_Y, classes, name):
 	conf_m = confusion_matrix(test_Y, predict_test, labels = classes)
 	row_sum = conf_m.sum(axis = 1)
 	classes_acc = np.diag(conf_m) * 1.0 / row_sum
-	classes_acc = [i if i >= 0 else 0 for i in classes_acc]
+	classes_acc = [i for i in classes_acc if i >= 0 ]
 	print "_________________ Using Model %s __________________\n"%(name)
 	print conf_m
 #	print classification_report_imbalanced(test_Y, predict_test, labels = classes)
@@ -159,20 +175,20 @@ filenames = ["shrek_2","carstoons", "chicken_run", "ice_age", "team_america", "i
 languages = ["eng", "tur", "deu", "slk", "rus", "ukr", "spa", "lit", "lav", "est"]
 speed = ["slower", "Original", "faster"]
 
+
+# Train within same movie
 X, Y,m = read_from_arff("Features/ice_age_a_mammoth_christmas_eng_Original.arff")
 X1, Y1,m = read_from_arff("Features/ice_age_a_mammoth_christmas_eng_faster.arff")
 X2, Y2,m = read_from_arff("Features/ice_age_a_mammoth_christmas_eng_slower.arff")
-
-
-
-#test_X, test_Y = get_dataset(test)
 n = len(Y)
 idx = range(n)
+random.seed(0)
 random.shuffle(idx)
-test_X = X[idx[:n/5]]
-test_Y = Y[idx[:n/5]]
-train_X = np.vstack([X[idx[n/5:]], X1[idx[n/5:]],X2[idx[n/5:]]])
-train_Y = np.hstack([Y[idx[n/5:]], Y1[idx[n/5:]],Y2[idx[n/5:]]])
+val = 3
+test_X = X[idx[:n/val]]
+test_Y = Y[idx[:n/val]]
+train_X = np.vstack([X[idx[n/val:]], X1[idx[n/val:]],X2[idx[n/val:]]])
+train_Y = np.hstack([Y[idx[n/val:]], Y1[idx[n/val:]],Y2[idx[n/val:]]])
 print train_X.shape
 print test_X.shape
 
@@ -185,7 +201,24 @@ print test_X.shape
 #print test_X.shape
 #
 #
-##Use 90% to train the other 
+##Use 90% to train the other (one language)
+#train = [directory + i + "_eng_" + j + ".arff" for i in filenames for j in ["Original"]]
+#train1 = [directory + i + "_eng_" + j + ".arff" for i in filenames for j in ["faster"]]
+#train2 = [directory + i + "_eng_" + j + ".arff" for i in filenames for j in ["slower"]]
+#X, Y = get_dataset(train)
+#X1, Y1 = get_dataset(train1)
+#X2, Y2 = get_dataset(train2)
+#n = len(Y)
+#idx = range(n)
+#random.shuffle(idx)
+#test_X = X[idx[:n/5]]
+#test_Y = Y[idx[:n/5]]
+#train_X = np.vstack([X[idx[n/5:]], X1[idx[n/5:]],X2[idx[n/5:]]])
+#train_Y = np.hstack([Y[idx[n/5:]], Y1[idx[n/5:]],Y2[idx[n/5:]]])
+#print train_X.shape
+#print test_X.shape
+
+##Use 90% to train the other (all language)
 #language = ["eng", "tur", "deu"]
 #language = ["eng", "tur", "rus", "ukr", "spa", "lit", "lav", "est"]
 #train = [directory + "ice_age_a_mammoth_christmas" + "_" + i + "_"+ j + ".arff" for i in language for j in ["Original"]]
@@ -212,8 +245,10 @@ print test_X.shape
 #language = ["eng", "tur", "rus", "ukr", "spa", "lit", "lav", "est"]
 #train = [directory + "ice_age_a_mammoth_christmas" + "_" + i + "_" + j + ".arff" for i in language[1:] for j in speed]
 #test =  [directory + "ice_age_a_mammoth_christmas" + "_" + i + "_" +"Original" + ".arff" for i in language[:1]]
-#train_X,train_Y = get_dataset(train)
-#test_X, test_Y = get_dataset(test)
+#train_X,train_Y = get_dataset(train, True, True, 0.9)
+#test_X, test_Y = get_dataset(test, True, False, 0.1)
+##train_X,train_Y = get_dataset(train)
+##test_X, test_Y = get_dataset(test)
 #print train_X.shape
 #print test_X.shape
 
@@ -244,9 +279,11 @@ test_X = scaler.transform(test_X)
 classes = [1,2,3,4,5,6,7]
 labels = ["N","J","S","F","A","C","D"]
 
-#test_Y = process_by_x(test_Y, [1])
-#train_Y = process_by_x(train_Y, [1])
-#print np.mean(test_Y == 1)
+#val = 3
+#test_Y = process_by_x(test_Y, [val])
+#train_Y = process_by_x(train_Y, [val])
+#print sum(test_Y == 1)
+#print "%.4f"%(np.mean(test_Y == 1))
 #classes = [0, 1]
 #
 #tree = tree_classifier(train_X, train_Y)
