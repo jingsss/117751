@@ -9,8 +9,10 @@ from sklearn.multiclass import OneVsRestClassifier
 from sklearn.metrics import confusion_matrix
 from imblearn.metrics import classification_report_imbalanced,geometric_mean_score
 from sklearn.linear_model import LogisticRegression, RidgeClassifier
-
+import random
 from sklearn import preprocessing
+from os import listdir
+from sklearn.neural_network import MLPClassifier
 
 def read_from_arff(filename):
 	with open(filename,'r') as f:
@@ -69,7 +71,7 @@ def construct_tree():
 	x.left.left.right.assign_left_right([l["J"]], [l["S"]])
 	x.left.right.assign_left_right([l["C"]], [l["F"],l["D"]])
 	x.left.right.right.assign_left_right([l["F"]],[l["D"]])
-	x.right.assign_left_right([l["C"]], [l["N"]])
+	x.right.assign_left_right([l["S"]], [l["N"]])
 	return x
 
 class tree_classifier():
@@ -139,25 +141,85 @@ class tree_classifier():
 						return cur.left.value[0]
 				
 			
-				
-	
+def process_by_x(test, x):
+	test_temp = []
+	for i in test:
+		if i in x:
+			test_temp.append(1)
+		else:
+			test_temp.append(0)
+	return np.asarray(test_temp)
 		
 	
 
 
 directory = "Features/"
-filenames = ["shrek_2","carstoons", "chicken_run", "ice_age_a_mammoth_christmas", "ice_age", "team_america"]
+filenames = ["shrek_2","carstoons", "chicken_run", "ice_age", "team_america", "ice_age_a_mammoth_christmas"]
 languages = ["eng", "tur", "deu", "slk", "rus", "ukr", "spa", "lit", "lav", "est"]
 speed = ["slower", "Original", "faster"]
 
 
-train = [directory + i + "_eng_" + j + ".arff" for i in filenames[:4] for j in speed]
-test = [directory + i + "_eng_" + j + ".arff" for i in filenames[4:] for j in speed]
 
-train_X, train_Y = get_dataset(train)
+##Use a part of movie to predict the other 
+#train = [directory + i + "_eng_" + j + ".arff" for i in filenames[:5] for j in speed]
+#test = [directory + i + "_eng_" + "Original" + ".arff" for i in filenames[5:]]
+#train_X, train_Y = get_dataset(train)
+#test_X, test_Y = get_dataset(test)
+#print train_X.shape
+#print test_X.shape
+#
+#
+##Use 90% to train the other 
+#language = ["eng", "tur", "deu"]
+#language = ["eng", "tur", "rus", "ukr", "spa", "lit", "lav", "est"]
+#train = [directory + "ice_age_a_mammoth_christmas" + "_" + i + "_"+ j + ".arff" for i in language for j in ["Original"]]
+#train_faster = [directory + "ice_age_a_mammoth_christmas" + "_" + i+ "_" +j + ".arff" for i in language for j in ["faster"]]
+#train_slower = [directory + "ice_age_a_mammoth_christmas" + "_" + i + "_"+ j + ".arff" for i in language for j in ["slower"]]
+#
+#X, Y = get_dataset(train)
+#X1, Y1 = get_dataset(train_faster)
+#X2, Y2 = get_dataset(train_slower)
+#
+##test_X, test_Y = get_dataset(test)
+#n = len(Y)
+#idx = range(n)
+#random.shuffle(idx)
+#test_X = X[idx[:n/5]]
+#test_Y = Y[idx[:n/5]]
+#train_X = np.vstack([X[idx[n/5:]], X1[idx[n/5:]],X2[idx[n/5:]]])
+#train_Y = np.hstack([Y[idx[n/5:]], Y1[idx[n/5:]],Y2[idx[n/5:]]])
+#print train_X.shape
+#print test_X.shape
+
+
+## Usinfg 7 to train 1
+language = ["eng", "tur", "rus", "ukr", "spa", "lit", "lav", "est"]
+train = [directory + "ice_age_a_mammoth_christmas" + "_" + i + "_" + j + ".arff" for i in language[1:] for j in speed]
+test =  [directory + "ice_age_a_mammoth_christmas" + "_" + i + "_" +"Original" + ".arff" for i in language[:1]]
+train_X,train_Y = get_dataset(train)
 test_X, test_Y = get_dataset(test)
 print train_X.shape
 print test_X.shape
+
+
+# using all to train 
+
+#test_pre = "ice_age_a_mammoth_christmas"
+#train = []
+#test = []
+#for i in listdir(directory):
+#	if i.endswith(".arff") and not i.startswith("."):
+#		if not i.startswith(test_pre) and "eng" not in i:
+#			train.append(directory + i)
+#		if i.startswith(test_pre + "_eng_Original"):
+#			test.append(directory + i)
+#
+#train_X,train_Y = get_dataset(train)
+#test_X, test_Y = get_dataset(test)
+#print train_X.shape
+#print test_X.shape		
+			
+
 
 scaler = preprocessing.StandardScaler().fit(train_X)
 train_X = scaler.transform(train_X) 
@@ -165,27 +227,31 @@ test_X = scaler.transform(test_X)
 
 classes = [1,2,3,4,5,6,7]
 labels = ["N","J","S","F","A","C","D"]
-l = dict()
-for i in classes:
-	l[labels[i - 1]] = i
 
-tree = tree_classifier(train_X, train_Y)
-predict_y = []
-for i in test_X:
-	v = tree.predict_by_level(np.array([i]))
-	predict_y.append(v)
-predict_y = np.asarray(predict_y)
-print np.mean(predict_y == test_Y)
-conf_m = confusion_matrix(test_Y, predict_y, labels = classes)
-print conf_m
-row_sum = conf_m.sum(axis = 1)
-classes_acc = np.diag(conf_m) * 1.0 / row_sum
-print np.mean(classes_acc)
+#test_Y = process_by_x(test_Y, [1])
+#train_Y = process_by_x(train_Y, [1])
+#print np.mean(test_Y == 1)
+#classes = [0, 1]
+#
+#tree = tree_classifier(train_X, train_Y)
+#predict_y = []
+#for i in test_X:
+#	v = tree.predict_by_level(np.array([i]))
+#	predict_y.append(v)
+#predict_y = np.asarray(predict_y)
+#print np.mean(predict_y == test_Y)
+#conf_m = confusion_matrix(test_Y, predict_y, labels = classes)
+#print conf_m
+#row_sum = conf_m.sum(axis = 1)
+#classes_acc = np.diag(conf_m) * 1.0 / row_sum
+#print np.mean(classes_acc)
 clf = LinearSVC()
 model(clf, train_X, train_Y, test_X, test_Y, classes, "LinearSVC")
 clf = OneVsRestClassifier(LinearSVC())
 model(clf, train_X, train_Y, test_X, test_Y, classes, "LinearSVC(OvR)")
-#clf = OneVsRestClassifier(RandomForestClassifier())
-#model(clf, train_X, train_Y, test_X, test_Y, classes, "RandomForestClassifier")
-#clf = OneVsRestClassifier(RidgeClassifier())
-#model(clf, train_X, train_Y, test_X, test_Y, classes, "RidgeClassifier")
+clf = OneVsRestClassifier(RandomForestClassifier())
+model(clf, train_X, train_Y, test_X, test_Y, classes, "RandomForestClassifier")
+clf = OneVsRestClassifier(RidgeClassifier())
+model(clf, train_X, train_Y, test_X, test_Y, classes, "RidgeClassifier")
+clf = MLPClassifier(solver='lbfgs', alpha=5e-2,hidden_layer_sizes=(12, 6), random_state=1)
+model(clf, train_X, train_Y, test_X, test_Y, classes, "MLPClassifier(OvR)")
