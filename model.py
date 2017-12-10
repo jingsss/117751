@@ -8,6 +8,7 @@ from sklearn.multiclass import OneVsRestClassifier
 from sklearn.metrics import confusion_matrix
 from sklearn.linear_model import LogisticRegression, RidgeClassifier
 from sklearn.neural_network import MLPClassifier
+from sklearn.decomposition import PCA
 
 #from imblearn.metrics import classification_report_imbalanced,geometric_mean_score
 
@@ -18,6 +19,13 @@ def read_from_arff(filename):
 		data, meta = arff.loadarff(f)
 		data_X = np.asarray([list(i)[:-1] for i in data])
 		data_Y = np.asarray([i[-1] for i in data])
+		n = len(data_Y)
+		idx = []
+		for i in range(n):
+			if data_Y[i] != '3':
+				idx.append(i)
+		data_X = data_X[idx]
+		data_Y = data_Y[idx]
 	return data_X, data_Y, meta
 	
 def model(clf, train_X, train_Y, test_X, test_Y, classes, name):
@@ -36,17 +44,15 @@ def model(clf, train_X, train_Y, test_X, test_Y, classes, name):
 
 	
 	
-classes = ['1','2','3','4','5','6','7']
-labels = ["N","J","S","F","A","C","D"]
-#test_X, test_Y, meta =read_from_arff('Features/test.arff')
-#train_X, train_Y, meta = read_from_arff('Features/train.arff')
+classes = ['1','2','4','5','6','7']
+labels = ["N","J","F","A","C","D"]
+train_X, train_Y, meta = read_from_arff('Features_db/emodb.arff')
+test_X, test_Y, meta =read_from_arff('Features_db/emovo.arff')
+
 X, Y, meta =read_from_arff('Features_db/emodb.arff')
 
 n = len(Y)
-idx = []
-for i in range(n):
-	if Y[i] != '3':
-		idx.append(i)
+idx = range(n)
 print len(idx)
 random.seed(1)
 random.shuffle(idx)
@@ -54,6 +60,7 @@ train_X = X[idx[n / 5:]]
 train_Y = Y[idx[n / 5:]]
 test_X = X[idx[:n / 5]]
 test_Y = Y[idx[:n / 5]]
+
 scaler = preprocessing.StandardScaler().fit(train_X)
 train_X = scaler.transform(train_X) 
 test_X = scaler.transform(test_X) 
@@ -65,7 +72,7 @@ clf = OneVsRestClassifier(RandomForestClassifier())
 model(clf, train_X, train_Y, test_X, test_Y, classes, "RandomForestClassifier(OvR)")
 clf = OneVsRestClassifier(RidgeClassifier())
 model(clf, train_X, train_Y, test_X, test_Y, classes, "RidgeClassifier(OvR)")
-clf = MLPClassifier(solver='lbfgs', alpha=16,hidden_layer_sizes=(12, 6), random_state=1, max_iter = 500)
+clf = MLPClassifier(solver='lbfgs', alpha=16,hidden_layer_sizes=(12, 6), random_state=1, max_iter = 500, early_stopping=True)
 model(clf, train_X, train_Y, test_X, test_Y, classes, "MLPClassifier")
 
 

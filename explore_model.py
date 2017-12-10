@@ -36,6 +36,7 @@ def model(clf, train_X, train_Y, test_X, test_Y, classes, name):
 	conf_m = confusion_matrix(test_Y, predict_test, labels = classes)
 	row_sum = conf_m.sum(axis = 1)
 	classes_acc = np.diag(conf_m) * 1.0 / row_sum
+	classes_acc = [i if i >= 0 else 0 for i in classes_acc]
 	print "_________________ Using Model %s __________________\n"%(name)
 	print conf_m
 #	print classification_report_imbalanced(test_Y, predict_test, labels = classes)
@@ -158,7 +159,22 @@ filenames = ["shrek_2","carstoons", "chicken_run", "ice_age", "team_america", "i
 languages = ["eng", "tur", "deu", "slk", "rus", "ukr", "spa", "lit", "lav", "est"]
 speed = ["slower", "Original", "faster"]
 
+X, Y,m = read_from_arff("Features/ice_age_a_mammoth_christmas_eng_Original.arff")
+X1, Y1,m = read_from_arff("Features/ice_age_a_mammoth_christmas_eng_faster.arff")
+X2, Y2,m = read_from_arff("Features/ice_age_a_mammoth_christmas_eng_slower.arff")
 
+
+
+#test_X, test_Y = get_dataset(test)
+n = len(Y)
+idx = range(n)
+random.shuffle(idx)
+test_X = X[idx[:n/5]]
+test_Y = Y[idx[:n/5]]
+train_X = np.vstack([X[idx[n/5:]], X1[idx[n/5:]],X2[idx[n/5:]]])
+train_Y = np.hstack([Y[idx[n/5:]], Y1[idx[n/5:]],Y2[idx[n/5:]]])
+print train_X.shape
+print test_X.shape
 
 ##Use a part of movie to predict the other 
 #train = [directory + i + "_eng_" + j + ".arff" for i in filenames[:5] for j in speed]
@@ -193,13 +209,13 @@ speed = ["slower", "Original", "faster"]
 
 
 ## Usinfg 7 to train 1
-language = ["eng", "tur", "rus", "ukr", "spa", "lit", "lav", "est"]
-train = [directory + "ice_age_a_mammoth_christmas" + "_" + i + "_" + j + ".arff" for i in language[1:] for j in speed]
-test =  [directory + "ice_age_a_mammoth_christmas" + "_" + i + "_" +"Original" + ".arff" for i in language[:1]]
-train_X,train_Y = get_dataset(train)
-test_X, test_Y = get_dataset(test)
-print train_X.shape
-print test_X.shape
+#language = ["eng", "tur", "rus", "ukr", "spa", "lit", "lav", "est"]
+#train = [directory + "ice_age_a_mammoth_christmas" + "_" + i + "_" + j + ".arff" for i in language[1:] for j in speed]
+#test =  [directory + "ice_age_a_mammoth_christmas" + "_" + i + "_" +"Original" + ".arff" for i in language[:1]]
+#train_X,train_Y = get_dataset(train)
+#test_X, test_Y = get_dataset(test)
+#print train_X.shape
+#print test_X.shape
 
 
 # using all to train 
@@ -245,14 +261,14 @@ labels = ["N","J","S","F","A","C","D"]
 #row_sum = conf_m.sum(axis = 1)
 #classes_acc = np.diag(conf_m) * 1.0 / row_sum
 #print np.mean(classes_acc)
-#clf = LinearSVC()
-#model(clf, train_X, train_Y, test_X, test_Y, classes, "LinearSVC")
-#clf = OneVsRestClassifier(LinearSVC())
-#model(clf, train_X, train_Y, test_X, test_Y, classes, "LinearSVC(OvR)")
-#clf = OneVsRestClassifier(RandomForestClassifier())
-#model(clf, train_X, train_Y, test_X, test_Y, classes, "RandomForestClassifier")
-#clf = OneVsRestClassifier(RidgeClassifier())
-#model(clf, train_X, train_Y, test_X, test_Y, classes, "RidgeClassifier")
+clf = LinearSVC()
+model(clf, train_X, train_Y, test_X, test_Y, classes, "LinearSVC")
+clf = OneVsRestClassifier(LinearSVC())
+model(clf, train_X, train_Y, test_X, test_Y, classes, "LinearSVC(OvR)")
+clf = OneVsRestClassifier(RandomForestClassifier())
+model(clf, train_X, train_Y, test_X, test_Y, classes, "RandomForestClassifier")
+clf = OneVsRestClassifier(RidgeClassifier())
+model(clf, train_X, train_Y, test_X, test_Y, classes, "RidgeClassifier")
 clf = MLPClassifier(solver='lbfgs', alpha=16, hidden_layer_sizes=(12, 6), random_state=1, max_iter = 2000)
 model(clf, train_X, train_Y, test_X, test_Y, classes, "MLPClassifier")
 
