@@ -65,8 +65,8 @@ clf = OneVsRestClassifier(RandomForestClassifier())
 model(clf, train_X, train_Y, test_X, test_Y, classes, "RandomForestClassifier(OvR)")
 clf = OneVsRestClassifier(RidgeClassifier())
 model(clf, train_X, train_Y, test_X, test_Y, classes, "RidgeClassifier(OvR)")
-clf = MLPClassifier(solver='lbfgs', alpha=16,hidden_layer_sizes=(12, 6), random_state=1)
-model(clf, train_X, train_Y, test_X, test_Y, classes, "MLPClassifier(OvR)")
+clf = MLPClassifier(solver='lbfgs', alpha=16,hidden_layer_sizes=(12, 6), random_state=1, max_iter = 500)
+model(clf, train_X, train_Y, test_X, test_Y, classes, "MLPClassifier")
 
 
 
