@@ -17,14 +17,13 @@ from sklearn.neural_network import MLPClassifier
 def read_from_arff(filename):
 	with open(filename,'r') as f:
 		data, meta = arff.loadarff(f)
-		data_X = np.asarray([list(i)[:-1] for i in data])
+		data_X = np.asarray([list(i)[1:-1] for i in data])
 		data_Y = np.asarray([int(i[-1]) for i in data])
 	return data_X, data_Y, meta
 
-def get_dataset(filename, same_movie = False, prev = True, thres = 1):
+def get_dataset(filename, idx = None, same_movie = False, prev = True, thres = 1):
 	X = []
 	Y = []
-	idx = None
 	for i in filename:
 		temp_X, temp_Y, meta = read_from_arff(i)
 		if same_movie == False:
@@ -37,9 +36,11 @@ def get_dataset(filename, same_movie = False, prev = True, thres = 1):
 				random.seed(1)
 				random.shuffle(idx)
 			if prev == True:
+				n = len(idx)
 				temp_X = temp_X[idx[:int(thres * n)]]
 				temp_Y = temp_Y[idx[:int(thres * n)]]
 			else:
+				n = len(idx)
 				temp_X = temp_X[idx[int(thres * n):]]
 				temp_Y = temp_Y[idx[int(thres * n):]]
 			X.append(temp_X)
@@ -52,7 +53,7 @@ def model(clf, train_X, train_Y, test_X, test_Y, classes, name):
 	conf_m = confusion_matrix(test_Y, predict_test, labels = classes)
 	row_sum = conf_m.sum(axis = 1)
 	classes_acc = np.diag(conf_m) * 1.0 / row_sum
-	classes_acc = [i for i in classes_acc if i >= 0 ]
+	classes_acc = [i if i >= 0 else 0 for i in classes_acc]
 	print "_________________ Using Model %s __________________\n"%(name)
 	print conf_m
 #	print classification_report_imbalanced(test_Y, predict_test, labels = classes)
@@ -177,20 +178,20 @@ speed = ["slower", "Original", "faster"]
 
 
 # Train within same movie
-X, Y,m = read_from_arff("Features/ice_age_a_mammoth_christmas_eng_Original.arff")
-X1, Y1,m = read_from_arff("Features/ice_age_a_mammoth_christmas_eng_faster.arff")
-X2, Y2,m = read_from_arff("Features/ice_age_a_mammoth_christmas_eng_slower.arff")
-n = len(Y)
-idx = range(n)
-random.seed(0)
-random.shuffle(idx)
-val = 3
-test_X = X[idx[:n/val]]
-test_Y = Y[idx[:n/val]]
-train_X = np.vstack([X[idx[n/val:]], X1[idx[n/val:]],X2[idx[n/val:]]])
-train_Y = np.hstack([Y[idx[n/val:]], Y1[idx[n/val:]],Y2[idx[n/val:]]])
-print train_X.shape
-print test_X.shape
+#X, Y,m = read_from_arff("Features/ice_age_a_mammoth_christmas_eng_Original.arff")
+#X1, Y1,m = read_from_arff("Features/ice_age_a_mammoth_christmas_eng_faster.arff")
+#X2, Y2,m = read_from_arff("Features/ice_age_a_mammoth_christmas_eng_slower.arff")
+#n = len(Y)
+#idx = range(n)
+#random.seed(0)
+#random.shuffle(idx)
+#val = 3
+#test_X = X[idx[:n/val]]
+#test_Y = Y[idx[:n/val]]
+#train_X = np.vstack([X[idx[n/val:]], X1[idx[n/val:]],X2[idx[n/val:]]])
+#train_Y = np.hstack([Y[idx[n/val:]], Y1[idx[n/val:]],Y2[idx[n/val:]]])
+#print train_X.shape
+#print test_X.shape
 
 ##Use a part of movie to predict the other 
 #train = [directory + i + "_eng_" + j + ".arff" for i in filenames[:5] for j in speed]
@@ -242,15 +243,20 @@ print test_X.shape
 
 
 ## Usinfg 7 to train 1
-#language = ["eng", "tur", "rus", "ukr", "spa", "lit", "lav", "est"]
-#train = [directory + "ice_age_a_mammoth_christmas" + "_" + i + "_" + j + ".arff" for i in language[1:] for j in speed]
-#test =  [directory + "ice_age_a_mammoth_christmas" + "_" + i + "_" +"Original" + ".arff" for i in language[:1]]
-#train_X,train_Y = get_dataset(train, True, True, 0.9)
-#test_X, test_Y = get_dataset(test, True, False, 0.1)
-##train_X,train_Y = get_dataset(train)
-##test_X, test_Y = get_dataset(test)
-#print train_X.shape
-#print test_X.shape
+language = ["eng", "rus", "ukr", "spa", "lit", "lav", "est"]
+X2, Y2,m = read_from_arff("Features/ice_age_a_mammoth_christmas_eng_slower.arff")
+idx = range(len(Y2))
+random.seed(0)
+random.shuffle(idx)
+
+train = [directory + "ice_age_a_mammoth_christmas" + "_" + i + "_" + j + ".arff" for i in language[1:] for j in speed]
+test =  [directory + "ice_age_a_mammoth_christmas" + "_" + i + "_" +"Original" + ".arff" for i in language[:1]]
+train_X,train_Y = get_dataset(train,idx, True, True, 0.7)
+test_X, test_Y = get_dataset(test,idx, True, False, 0.7)
+#train_X,train_Y = get_dataset(train)
+#test_X, test_Y = get_dataset(test)
+print train_X.shape
+print test_X.shape
 
 
 # using all to train 
@@ -298,8 +304,8 @@ labels = ["N","J","S","F","A","C","D"]
 #row_sum = conf_m.sum(axis = 1)
 #classes_acc = np.diag(conf_m) * 1.0 / row_sum
 #print np.mean(classes_acc)
-clf = LinearSVC()
-model(clf, train_X, train_Y, test_X, test_Y, classes, "LinearSVC")
+#clf = LinearSVC()
+#model(clf, train_X, train_Y, test_X, test_Y, classes, "LinearSVC")
 clf = OneVsRestClassifier(LinearSVC())
 model(clf, train_X, train_Y, test_X, test_Y, classes, "LinearSVC(OvR)")
 clf = OneVsRestClassifier(RandomForestClassifier())
